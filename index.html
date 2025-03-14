@@ -1,9 +1,61 @@
-<!doctype html>
-<html>
-  <head>
-    <title>This is the title of the webpage!</title>
-  </head>
-  <body>
-    <p>This is an example paragraph. Anything in the <strong>body</strong> tag will appear on the page, just like this <strong>p</strong> tag and its contents.</p>
-  </body>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>File List</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 20px;
+        }
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        li {
+            margin: 5px 0;
+        }
+        a {
+            text-decoration: none;
+            color: blue;
+        }
+    </style>
+</head>
+<body>
+    <h2>File List</h2>
+    <ul id="file-list">Loading...</ul>
+
+    <script>
+        async function listFiles() {
+            try {
+                const response = await fetch('./'); // Fetch current directory
+                const text = await response.text();
+                
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(text, "text/html");
+                
+                const files = [...doc.querySelectorAll("a")].map(a => a.getAttribute("href"));
+                const listElement = document.getElementById("file-list");
+                listElement.innerHTML = "";
+
+                files.forEach(file => {
+                    if (file !== "index.html") { // Exclude index.html itself
+                        const li = document.createElement("li");
+                        const a = document.createElement("a");
+                        a.href = file;
+                        a.textContent = file;
+                        li.appendChild(a);
+                        listElement.appendChild(li);
+                    }
+                });
+            } catch (error) {
+                document.getElementById("file-list").innerHTML = "Error loading files.";
+                console.error("Error fetching file list:", error);
+            }
+        }
+        listFiles();
+    </script>
+</body>
 </html>
